@@ -34,6 +34,8 @@ int testCount;
 int bungeeCount;
 Vector3 spawnPos;
 bool pressed;
+
+bool BungeeSimulation;
 int main()
 {
 	ECSWorld world;
@@ -54,6 +56,7 @@ int main()
 	//MakeABunchaObjects(world);
 	//MakeFireworks(world);
 	//Make3Particles(world);
+	if(BungeeSimulation)
 	MakeABunchaSprings(world);
 
 	// Create Systems
@@ -85,6 +88,7 @@ int main()
 	bool modelsLoadStarted = false;
 	// game loop
 	// -----------
+	BungeeSimulation = true; //Turn on off different simulations. 
 	while (!glfwWindowShouldClose(world.data.renderUtil->window->glfwWindow))
 	{
 		testCount++;
@@ -94,23 +98,29 @@ int main()
 		time = glfwGetTime();
 
 		world.update();
-		if (glfwGetKey(world.data.renderUtil->window->glfwWindow, GLFW_KEY_SPACE) == GLFW_PRESS)
+		
+		if (BungeeSimulation)
 		{
-			pressed = true;
-		}
-		else
-		if (glfwGetKey(world.data.renderUtil->window->glfwWindow, GLFW_KEY_SPACE) == GLFW_RELEASE)
-		{
-			pressed = false;
-		}
+			if (glfwGetKey(world.data.renderUtil->window->glfwWindow, GLFW_KEY_SPACE) == GLFW_PRESS)
+			{
+				pressed = true;
+			}
+			else
+				if (glfwGetKey(world.data.renderUtil->window->glfwWindow, GLFW_KEY_SPACE) == GLFW_RELEASE)
+				{
+					pressed = false;
+				}
 
-		if (pressed)
-		{
-			spawnPos = world.data.renderUtil->camera.Position;
-			spawnPos += world.data.renderUtil->camera.Front;
-			MakeNewBungee(world, bungeeCount, spawnPos);
-			testCount = 0;
+			if (pressed)
+			{
+				spawnPos = world.data.renderUtil->camera.Position;
+				spawnPos += world.data.renderUtil->camera.Front;
+				MakeNewBungee(world, bungeeCount, spawnPos);
+				testCount = 0;
+			}
+
 		}
+		
 
 		// Poll OpenGl events
 		glfwPollEvents();
