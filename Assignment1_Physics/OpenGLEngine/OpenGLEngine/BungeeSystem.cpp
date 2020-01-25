@@ -19,10 +19,18 @@ namespace Reality
 			if (spring.connectedEntity.hasComponent<ForceAccumulatorComponent>()
 				&& spring.connectedEntity.hasComponent<TransformComponent>())
 			{
+				if (!spring.isFirst)
+				{
+					springTransform.position = spring.connector.getComponent<BungeeComponent>().connectedEntity.getComponent<TransformComponent>().position;
+				}
+
 				auto& forceAcc = spring.connectedEntity.getComponent<ForceAccumulatorComponent>();
 				auto& transform = spring.connectedEntity.getComponent<TransformComponent>();
 
+				transform.position = spring.connectedEntity.getComponent<TransformComponent>().position;
+
 				Vector3 relativePosition = transform.position - springTransform.position;
+				
 				float length = glm::length(relativePosition);
 				if (length > 0)
 				{

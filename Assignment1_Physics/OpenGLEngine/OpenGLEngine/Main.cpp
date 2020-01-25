@@ -268,16 +268,23 @@ void MakeABunchaSprings(ECSWorld & world)
 	particle1.addComponent<ForceAccumulatorComponent>();
 	particle1.addComponent<GravityForceComponent>();
 
-	/*auto particle2= world.createEntity();
-	particle2.addComponent<TransformComponent>(Vector3(-10, 0, -50));
-	particle2.addComponent<ParticleComponent>(Vector3(0, 0, 0));
-	particle2.addComponent<ForceAccumulatorComponent>();
-	particle2.addComponent<GravityForceComponent>();*/
-
 	auto spring1 = world.createEntity();
 	spring1.addComponent<TransformComponent>(Vector3(20, 30, -50));
-	spring1.addComponent<BungeeComponent>(4.0f, 10.0f, particle1);
+	spring1.addComponent<BungeeComponent>(true, 16.0f, 23.0f, particle1, particle1);
 	spring1.addComponent<GravityForceComponent>();
+
+	auto particle2 = world.createEntity();
+	particle2.addComponent<TransformComponent>(spring1.getComponent<TransformComponent>().position);
+	particle2.addComponent<ParticleComponent>(spring1.getComponent<TransformComponent>().position);
+	particle2.addComponent<ForceAccumulatorComponent>();
+	particle2.addComponent<GravityForceComponent>();
+
+	auto spring2 = world.createEntity();
+	spring2.addComponent<TransformComponent>(spring1.getComponent<TransformComponent>().position);
+	spring2.addComponent<BungeeComponent>(false, 16.0f,23.0f, particle2, spring1);
+	spring2.addComponent<GravityForceComponent>();
+
+
 
 
 }
