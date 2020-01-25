@@ -27,11 +27,17 @@ void MakeABunchaObjects(ECSWorld& world);
 void MakeFireworks(ECSWorld& world);
 void Make3Particles(ECSWorld& world);
 void MakeABunchaSprings(ECSWorld& world);
+void MakeNewBungee(ECSWorld& world, int _bungeeCount, Vector3 spawnAt);
 
+ECSEntity *lastBungee;
+int testCount;
+int bungeeCount;
+Vector3 spawnPos;
+bool pressed;
 int main()
 {
 	ECSWorld world;
-
+	
 	// Init and Load
 	world.data.InitRendering();
 	//LoadAssets(world);
@@ -81,12 +87,30 @@ int main()
 	// -----------
 	while (!glfwWindowShouldClose(world.data.renderUtil->window->glfwWindow))
 	{
+		testCount++;
 		float current = glfwGetTime();
 		deltaTime = current - time;
 		deltaTime = 1 / 60.0f;
 		time = glfwGetTime();
 
 		world.update();
+		if (glfwGetKey(world.data.renderUtil->window->glfwWindow, GLFW_KEY_SPACE) == GLFW_PRESS)
+		{
+			pressed = true;
+		}
+		else
+		if (glfwGetKey(world.data.renderUtil->window->glfwWindow, GLFW_KEY_SPACE) == GLFW_RELEASE)
+		{
+			pressed = false;
+		}
+
+		if (pressed)
+		{
+			spawnPos = world.data.renderUtil->camera.Position;
+			spawnPos += world.data.renderUtil->camera.Front;
+			MakeNewBungee(world, bungeeCount, spawnPos);
+			testCount = 0;
+		}
 
 		// Poll OpenGl events
 		glfwPollEvents();
@@ -263,14 +287,14 @@ void Make3Particles(ECSWorld & world)
 void MakeABunchaSprings(ECSWorld & world)
 {
 	auto particle1 = world.createEntity();
-	particle1.addComponent<TransformComponent>(Vector3(20, 20, -50));
+	particle1.addComponent<TransformComponent>(Vector3(20, 20, -150));
 	particle1.addComponent<ParticleComponent>(Vector3(0, 0, 0));
 	particle1.addComponent<ForceAccumulatorComponent>();
 	particle1.addComponent<GravityForceComponent>();
 
 	auto spring1 = world.createEntity();
-	spring1.addComponent<TransformComponent>(Vector3(20, 30, -50));
-	spring1.addComponent<BungeeComponent>(true, 16.0f, 23.0f, particle1, particle1);
+	spring1.addComponent<TransformComponent>(Vector3(20, 30, -150));
+	spring1.addComponent<BungeeComponent>(true, 1.1f, 100, particle1, particle1);
 	spring1.addComponent<GravityForceComponent>();
 
 	auto particle2 = world.createEntity();
@@ -281,12 +305,33 @@ void MakeABunchaSprings(ECSWorld & world)
 
 	auto spring2 = world.createEntity();
 	spring2.addComponent<TransformComponent>(spring1.getComponent<TransformComponent>().position);
-	spring2.addComponent<BungeeComponent>(false, 16.0f,23.0f, particle2, spring1);
+	spring2.addComponent<BungeeComponent>(false, 1.1f, 100, particle2, spring1);
 	spring2.addComponent<GravityForceComponent>();
+	bungeeCount = 0;
+	lastBungee = &spring2;
+	lastBungee->tag(to_string(bungeeCount));
+	
+}
 
+void MakeNewBungee(ECSWorld& world, int _bungeeCount, Vector3 spawnAt)
+{
+	auto Last = world.getEntity(to_string(_bungeeCount));
 
+	auto myPart = world.createEntity();
+	myPart.addComponent<TransformComponent>(spawnAt);
+	myPart.addComponent<ParticleComponent>(spawnAt);
+	myPart.addComponent<ForceAccumulatorComponent>();
+	myPart.addComponent<GravityForceComponent>();
 
-
+	auto newSpring = world.createEntity();
+	newSpring.addComponent<TransformComponent>(spawnAt);
+	newSpring.addComponent<BungeeComponent>(false, 1.1f, 100, myPart, Last);
+	newSpring.addComponent<GravityForceComponent>();
+		
+	
+	lastBungee = &newSpring;
+	bungeeCount++;
+	lastBungee->tag(to_string(bungeeCount));
 }
 
 void SetupLights(ECSWorld& world)
