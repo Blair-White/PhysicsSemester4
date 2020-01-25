@@ -40,6 +40,8 @@ int main()
 {
 	ECSWorld world;
 	
+	//Choose Simulation
+	BungeeSimulation = true; //Turn on off different simulations. 
 	// Init and Load
 	world.data.InitRendering();
 	//LoadAssets(world);
@@ -88,7 +90,7 @@ int main()
 	bool modelsLoadStarted = false;
 	// game loop
 	// -----------
-	BungeeSimulation = true; //Turn on off different simulations. 
+	
 	while (!glfwWindowShouldClose(world.data.renderUtil->window->glfwWindow))
 	{
 		testCount++;
