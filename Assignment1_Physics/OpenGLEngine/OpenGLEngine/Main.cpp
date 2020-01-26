@@ -30,18 +30,27 @@ void MakeABunchaSprings(ECSWorld& world);
 void MakeNewBungee(ECSWorld& world, int _bungeeCount, Vector3 spawnAt);
 
 ECSEntity *lastBungee;
+ECSEntity* Buoy;
 int testCount;
 int bungeeCount;
-Vector3 spawnPos;
-bool pressed;
 
+float WaterDensity;
+
+Vector3 spawnPos;
+Vector3 testPos;
+
+bool pressed;
+bool up, down;
 bool BungeeSimulation;
+bool BuoyancyTest;
 int main()
 {
 	ECSWorld world;
 	
 	//Choose Simulation
-	BungeeSimulation = true; //Turn on off different simulations. 
+	//BungeeSimulation = true; //Turn on off different simulations. 
+	BuoyancyTest = true;
+							 
 	// Init and Load
 	world.data.InitRendering();
 	//LoadAssets(world);
@@ -90,15 +99,97 @@ int main()
 	bool modelsLoadStarted = false;
 	// game loop
 	// -----------
+	if (BuoyancyTest)
+	{
+		auto bTester = world.createEntity();
+		bTester.addComponent<TransformComponent>(Vector3(-10, 20, -10));
+		bTester.addComponent<ParticleComponent>(Vector3(0, 0, 0));
+		bTester.addComponent<ForceAccumulatorComponent>();
+		bTester.addComponent<GravityForceComponent>();
+		bTester.addComponent<DragForceComponent>(0, 0);
+		Buoy = &bTester;
+		Buoy->tag("Buoy");
+		WaterDensity = 1;
 	
+	
+	}
+	
+
 	while (!glfwWindowShouldClose(world.data.renderUtil->window->glfwWindow))
 	{
 		testCount++;
+		
+		if (BuoyancyTest)
+		{
+			
+			
+
+
+			if (Buoy->getComponent<TransformComponent>().position.y > testPos.y +2)
+				Buoy->getComponent<ParticleComponent>().velocity = Vector3(0, -0.1f, 0);
+
+			if (glfwGetKey(world.data.renderUtil->window->glfwWindow, GLFW_KEY_UP) == GLFW_PRESS)
+			{
+				up = true;
+			}
+			else
+				if (glfwGetKey(world.data.renderUtil->window->glfwWindow, GLFW_KEY_UP) == GLFW_RELEASE)
+				{
+					up = false;
+				}
+			if (glfwGetKey(world.data.renderUtil->window->glfwWindow, GLFW_KEY_DOWN) == GLFW_PRESS)
+			{
+				down = true;
+			}
+			else
+				if (glfwGetKey(world.data.renderUtil->window->glfwWindow, GLFW_KEY_DOWN) == GLFW_RELEASE)
+				{
+					down = false;
+				}
+			if (up)
+			{
+				WaterDensity += 0.01f;
+				//testCount = 0;
+			}
+
+			if (down)
+			{
+				WaterDensity -= 0.01f;
+				//testCount = 0;
+			}
+
+			if (WaterDensity > 4) WaterDensity = 4; 
+			if (WaterDensity < -4) WaterDensity = -4;
+
+			if (testCount == 45)
+			{
+				
+				auto b = world.getEntity("Buoy");
+				Buoy->getComponent<GravityForceComponent>().gravityScale = 1;
+				Buoy->getComponent<ParticleComponent>().velocity = Vector3(0, 0.1f, 0);
+				testPos = Buoy->getComponent<TransformComponent>().position;
+			}
+			
+			if (testCount > 45)
+			{
+				if (testPos.y - Buoy->getComponent<TransformComponent>().position.y >= WaterDensity
+					||
+					testPos.y - Buoy->getComponent<TransformComponent>().position.y <= -WaterDensity)
+				{
+					Buoy->getComponent<GravityForceComponent>().gravityScale =
+						-1 * (testPos.y - Buoy->getComponent<TransformComponent>().position.y);
+				}
+			}
+
+		}
+		
+
+
 		float current = glfwGetTime();
 		deltaTime = current - time;
 		deltaTime = 1 / 60.0f;
 		time = glfwGetTime();
-
+		
 		world.update();
 		
 		if (BungeeSimulation)
@@ -118,7 +209,7 @@ int main()
 				spawnPos = world.data.renderUtil->camera.Position;
 				spawnPos += world.data.renderUtil->camera.Front;
 				MakeNewBungee(world, bungeeCount, spawnPos);
-				testCount = 0;
+				//testCount = 0;
 			}
 
 		}
@@ -212,9 +303,9 @@ int main()
 		// Update debug delta
 		debugDelta = glfwGetTime() - stepTime;
 		stepTime = glfwGetTime();
-
+		world.data.renderUtil->DrawLine(Vector3(-510, 8, -50), Vector3(510, 9, -50), Color(0.1f, 0.3f, 1.0f, 1.0f));
 		world.data.renderUtil->SwapBuffers(world.data.renderUtil->window->glfwWindow);
-
+	
 		// Show FPS in console
 		//std::cout << "FPS : " << 1.0f / deltaTime << std::endl;
 	}
