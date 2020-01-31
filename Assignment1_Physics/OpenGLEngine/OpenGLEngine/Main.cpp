@@ -48,8 +48,8 @@ int main()
 	ECSWorld world;
 	
 	//Choose Simulation
-	//BungeeSimulation = true; //Turn on off different simulations. 
-	BuoyancyTest = true;
+	BungeeSimulation = true; //Turn on off different simulations. 
+	//BuoyancyTest = true;
 							 
 	// Init and Load
 	world.data.InitRendering();

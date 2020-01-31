@@ -5,7 +5,7 @@ namespace Reality
 {
 	struct BungeeComponent
 	{
-		BungeeComponent(bool _isFirst = false, float _springConstant = 1.0f,
+		BungeeComponent(bool _isFirst = false, float _springConstant = 0.001f,
 			float _restLength = 0.5f,
 			ECSEntity _connectedEntity = ECSEntity(),
 			ECSEntity _connector = ECSEntity())

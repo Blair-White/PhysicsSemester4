@@ -34,10 +34,11 @@ namespace Reality
 				float length = glm::length(relativePosition);
 				if (length > 0)
 				{
+
 					float deltaL = length - spring.restLength;
 					Vector3 force = -glm::normalize(relativePosition);
 					if (deltaL > spring.restLength)
-						force *= spring.springConstant * deltaL;
+						force *= spring.springConstant * deltaL / 4;
 					forceAcc.AddForce(force);
 
 					float g = 1.0f / (1.0f + pow(abs(deltaL), 0.5f));
