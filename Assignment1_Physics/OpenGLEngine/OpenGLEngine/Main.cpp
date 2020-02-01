@@ -447,7 +447,7 @@ void MakeNBodies(ECSWorld& world)
 	auto particle1 = world.createEntity();
 	particle1.addComponent<TransformComponent>(Vector3(RANDOM_FLOAT(-50, 50), RANDOM_FLOAT(-50, 50), RANDOM_FLOAT(-50, 50)));
 	particle1.addComponent<ParticleComponent>(Vector3(0, 0, 0));
-	particle1.addComponent<ForceAccumulatorComponent>();
+	particle1.addComponent<ForceAccumulatorComponent>(RANDOM_FLOAT(1,12));
 	particle1.addComponent<DragForceComponent>();
 	}
 }
