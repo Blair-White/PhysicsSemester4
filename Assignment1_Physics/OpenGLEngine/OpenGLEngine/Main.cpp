@@ -28,7 +28,7 @@ void MakeFireworks(ECSWorld& world);
 void Make3Particles(ECSWorld& world);
 void MakeABunchaSprings(ECSWorld& world);
 void MakeNewBungee(ECSWorld& world, int _bungeeCount, Vector3 spawnAt);
-
+void MakeNBodies(ECSWorld& world);
 ECSEntity *lastBungee;
 ECSEntity* Buoy;
 int testCount;
@@ -43,14 +43,16 @@ bool pressed;
 bool up, down;
 bool BungeeSimulation;
 bool BuoyancyTest;
+bool NBodyTest;
 int main()
 {
 	ECSWorld world;
 	
-	//Choose Simulation
-	BungeeSimulation = true; //Turn on off different simulations. 
+	//Choose Simulation**********Do First.
+	//BungeeSimulation = true; //Turn on off different simulations. 
 	//BuoyancyTest = true;
-							 
+	NBodyTest = true;
+
 	// Init and Load
 	world.data.InitRendering();
 	//LoadAssets(world);
@@ -68,8 +70,9 @@ int main()
 	//MakeFireworks(world);
 	//Make3Particles(world);
 	if(BungeeSimulation)
-	MakeABunchaSprings(world);
-
+		MakeABunchaSprings(world);
+	if (NBodyTest)
+		MakeNBodies(world);
 	// Create Systems
 	world.getSystemManager().addSystem<RenderingSystem>();
 	world.getSystemManager().addSystem<InputEventSystem>();
@@ -435,6 +438,18 @@ void MakeNewBungee(ECSWorld& world, int _bungeeCount, Vector3 spawnAt)
 	lastBungee = &newSpring;
 	bungeeCount++;
 	lastBungee->tag(to_string(bungeeCount));
+}
+
+void MakeNBodies(ECSWorld& world)
+{
+	for (int i = 0; i < 25; i++)
+	{
+	auto particle1 = world.createEntity();
+	particle1.addComponent<TransformComponent>(Vector3(RANDOM_FLOAT(-50, 50), RANDOM_FLOAT(-50, 50), RANDOM_FLOAT(-50, 50)));
+	particle1.addComponent<ParticleComponent>(Vector3(0, 0, 0));
+	particle1.addComponent<ForceAccumulatorComponent>();
+	particle1.addComponent<DragForceComponent>();
+	}
 }
 
 void SetupLights(ECSWorld& world)
